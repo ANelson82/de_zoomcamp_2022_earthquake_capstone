@@ -4,6 +4,11 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.contrib.operators.simple_http_operator import SimpleHttpOperator
 # import gcs
 
+start_date = x 
+end_date = y
+format = geojson
+api = f"https://earthquake.usgs.gov/fdsnws/event/1/query?format={format}&starttime={start_date}&endtime={end_date}
+
 default_args = {
     'owner': 'Andy Nelson',
     'start_date': airflow.utils.dates.days_ago(2),
