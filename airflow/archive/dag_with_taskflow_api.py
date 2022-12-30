@@ -14,7 +14,6 @@ default_args = {
     start_date=datetime(2022, 12, 28), 
     schedule_interval='@daily')
 def hello_world_etl():
-    
 
     @task(multiple_outputs=True)
     def get_name():
