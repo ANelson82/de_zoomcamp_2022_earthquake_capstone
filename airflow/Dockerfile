@@ -1,5 +1,4 @@
 # Andy Dockerfile edit
-# Updated FROM apache/airflow:2.2.3
 FROM apache/airflow:2.5.0-python3.10
 
 SHELL ["/bin/bash", "-o", "pipefail", "-e", "-u", "-x", "-c"]
@@ -24,22 +23,12 @@ RUN DOWNLOAD_URL="https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/goo
     && rm -rf "${TMP_DIR}" \
     && gcloud --version
 
-# ENV AIRFLOW_HOME=/opt/airflow
+ENV AIRFLOW_HOME=/opt/airflow
 
 RUN apt-get update -qq && apt-get install vim -qqq
 
-
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
-
-# Ref: https://airflow.apache.org/docs/docker-stack/recipes.html
-
-
-
-
-
-# Updated from CLOUD_SDK_VERSION=322.0.0
-
 
 WORKDIR $AIRFLOW_HOME
 

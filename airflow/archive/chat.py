@@ -23,13 +23,13 @@ default_args = {
     'owner': 'me',
     'start_date': days_ago(2),
     'depends_on_past': False,
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5),
+    'retries': 0,
+    'retry_delay': timedelta(minutes=1),
 }
 
 # Initialize the DAG
 dag = DAG(
-    'chat_v2',
+    'chat_v3',
     default_args=default_args,
     schedule_interval= "@daily",
 )
@@ -37,7 +37,7 @@ dag = DAG(
 # Define a function that retrieves data from the API and returns it
 def get_data_from_api(**kwargs):
     data = (requests.get(api_url, headers)).json()
-    with open(f'{AIRFLOW_HOME}/data.json', 'w') as f:
+    with open('temp/data.json', 'w') as f:
         json.dump(data, f)
 
 # Define a function that uploads a file to Google Cloud Storage
@@ -53,7 +53,7 @@ def upload_to_gcs():
     
     # Create a blob and upload the data to it
     blob = bucket.blob('raw/data.json')
-    blob.upload_from_filename(f'{AIRFLOW_HOME}/data.json')
+    blob.upload_from_filename('temp/data.json')
 
 # Define the tasks in the DAG
 get_data_task = PythonOperator(
