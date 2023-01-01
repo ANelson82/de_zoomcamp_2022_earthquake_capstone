@@ -38,7 +38,7 @@ destination_blob_parquet = f"usgs_fdsn_raw/data_{yesterday}.parquet"
     tags=["USGS_FDSN_EARTHQUAKES"],
 )
 
-def usgs_earthquake_pipeline_v3():
+def usgs_earthquake_pipeline_v4():
     @task()
     def python_requests_api(api_url):
         json_data = requests.get(api_url).json()
@@ -107,8 +107,26 @@ def usgs_earthquake_pipeline_v3():
         blob = bucket.blob(destination_blob_parquet)
         blob.upload_from_filename(local_parquet_save)
         return destination_blob_parquet
-    @task()
-    def gcs_2_bigquery_external(destination_blob_parquet):
+    api_data = python_requests_api(api_url)
+    exported_list = nested_json_to_list(api_data)
+    local_file_sent =  list_to_df_to_parquet_to_local(exported_list)
+    upload_to_gcs(BUCKET, local_file_sent, destination_blob_parquet)
+usgs_earthquake_pipeline_v4()
+
+
+# @dag(
+#     schedule="@daily",
+#     default_args={
+#         "depends_on_past": True,
+#         "retries": 1,
+#         "retry_delay": datetime.timedelta(minutes=3),
+#     },
+#     start_date=pendulum.datetime(2022, 12, 26, tz="UTC"),
+#     description="DE_Zoomcamp Capstone Project Pipeline by Andy Nelson",
+#     catchup=False,
+#     tags=["USGS_FDSN_EARTHQUAKES"],
+# )
+def gcs_2_bigquery_external():
         bigquery_external_table_task = BigQueryCreateExternalTableOperator(
         task_id="bigquery_external_table_task",
         table_resource={
@@ -124,9 +142,9 @@ def usgs_earthquake_pipeline_v3():
             },
         )
         return bigquery_external_table_task
-    api_data = python_requests_api(api_url)
-    exported_list = nested_json_to_list(api_data)
-    local_file_sent =  list_to_df_to_parquet_to_local(exported_list)
-    uploaded_parquet = upload_to_gcs(BUCKET, local_file_sent, destination_blob_parquet)
-    gcs_2_bigquery_external(uploaded_parquet)
-usgs_earthquake_pipeline_v3()
+
+with DAG("my_dag") as dag:
+    first_dag = usgs_earthquake_pipeline_v4()
+second_dag = gcs_2_bigquery_external()
+
+first_dag >> second_dag
