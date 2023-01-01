@@ -19,8 +19,6 @@ BIGQUERY_DATASET = os.environ.get("BIGQUERY_DATASET")
 CREDENTIALS_DIR = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 SERVICE_ACCOUNT_CREDENTIALS = service_account.Credentials.from_service_account_file(f"{CREDENTIALS_DIR}")
 
-# day_before_yesterday = pendulum.now().subtract(days=2).format('YYYY-MM-DD')
-# yesterday = pendulum.now().subtract(days=1).format('YYYY-MM-DD')
 day_before_yesterday = '{{ macros.ds_add(ds, -2) }}'
 yesterday = '{{ macros.ds_add(ds, -1) }}'
 api_url = f'https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime={day_before_yesterday}&endtime={yesterday}'
