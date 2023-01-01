@@ -2,8 +2,11 @@ import json
 import os 
 import pendulum
 import requests
+import pandas as pd
+import pyarrow
 
 from airflow import DAG
+from airflow.decorators import dag, task
 from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
 from google.cloud import storage
@@ -20,33 +23,34 @@ SA_CREDENTIALS = service_account.Credentials.from_service_account_file(f"{CREDEN
 api_url = 'https://gorest.co.in/public/v2/users'
 headers = {"Authorization": f"Bearer {PRIMARY_TOKEN}", "Accept":"application/json", "Content-Type":"application/json"}
 dt = pendulum.now()
-local_file = f'{AIRFLOW_HOME}/data_{dt}.json'
-destination_blob_name = f"gorest/data_{dt}.json"
+local_parquet = f'{AIRFLOW_HOME}/data_{dt}.parquet'
+destination_blob_parquet = f"gorest/data_{dt}.parquet"
 
-from airflow.decorators import dag, task
 @dag(
     schedule=None,
     start_date=pendulum.datetime(2021, 1, 1, tz="UTC"),
     catchup=False,
-    tags=["example"],
+    tags=["gorest"],
 )
-def tutorial_taskflow_api_v2():
+def tutorial_taskflow_api_v3():
     @task()
-    def extract(api_url, headers):
+    def python_requests_api(api_url, headers):
         json_data = requests.get(api_url, headers).json()
         return json_data
     @task()
-    def save_file_local(json_data: json):
-        with open(f'{local_file}', "w") as f:
-            json.dump(json_data, f)
-        return local_file
+    def json_to_df_to_parquet_to_local(json_data):
+        df = pd.DataFrame.from_dict(json_data)
+        df.to_parquet(f'{local_parquet}')
+        local_parquet_save = local_parquet
+        return local_parquet_save
     @task()
-    def upload_to_gcs(BUCKET, local_file, destination_blob_name):
+    def upload_to_gcs(BUCKET, local_parquet_save, destination_blob_parquet):
         client = storage.Client(credentials=SA_CREDENTIALS)
         bucket = client.bucket(BUCKET)
-        blob = bucket.blob(destination_blob_name)
-        blob.upload_from_string(local_file)
-    api_data = extract(api_url, headers)
-    local_file_sent =  save_file_local(api_data)
-    upload_to_gcs(BUCKET, local_file, destination_blob_name)
-tutorial_taskflow_api_v2()
+        blob = bucket.blob(destination_blob_parquet)
+        blob.upload_from_filename(local_parquet_save)
+        return destination_blob_parquet
+    api_data = python_requests_api(api_url, headers)
+    local_file_sent =  json_to_df_to_parquet_to_local(api_data)
+    upload_to_gcs(BUCKET, local_file_sent, destination_blob_parquet)
+tutorial_taskflow_api_v3()

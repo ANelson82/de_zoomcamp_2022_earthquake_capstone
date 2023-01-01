@@ -13,7 +13,7 @@ AIRFLOW_HOME = os.environ.get("AIRFLOW_HOME")
 PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
 BUCKET = os.environ.get("GCP_GCS_BUCKET")
 PRIMARY_TOKEN = os.environ.get("PRIMARY_TOKEN")
-BIGQUERY_DATASET = os.environ.get("BIGQUERY_DATASET")
+# BIGQUERY_DATASET = os.environ.get("BIGQUERY_DATASET")
 CREDENTIALS_DIR = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 SA_CREDENTIALS = service_account.Credentials.from_service_account_file(f"{CREDENTIALS_DIR}")
 
