@@ -6,7 +6,7 @@ import datetime
 
 from airflow import DAG
 from airflow.decorators import task
-# from airflow.providers.google.cloud.operators.bigquery import BigQueryCreateExternalTableOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from google.cloud import storage
 from google.oauth2 import service_account
 
@@ -23,15 +23,23 @@ API_URL = f'https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&star
 LOCAL_PARQUET = f'{AIRFLOW_HOME}/usgs_fdsn_{YESTERDAY}.parquet'
 DESTINATION_BLOB_PARQUET = f"usgs_fdsn_raw/data_{YESTERDAY}.parquet"
 
+BQ_LOAD_DATA_QUERY = (
+                f"LOAD DATA INTO `{PROJECT_ID}.{BIGQUERY_DATASET}.test_native_load_data3` \
+                FROM FILES( \
+                    format='PARQUET', \
+                    uris = ['gs://{BUCKET}/{DESTINATION_BLOB_PARQUET}'] \
+                )"
+            )
+
 with DAG(
-    dag_id='usgs_earthquake_pipeline_v7',
+    dag_id='usgs_earthquake_pipeline_v11',
     schedule="@daily",
     default_args={
         "depends_on_past": False,
         "retries": 1,
         "retry_delay": datetime.timedelta(minutes=3),
     },
-    start_date=pendulum.datetime(2022, 12, 30, tz="UTC"),
+    start_date=pendulum.datetime(2022, 12, 26, tz="UTC"),
     description="DE_Zoomcamp Capstone Project Pipeline by Andy Nelson",
     catchup=True,
     tags=["USGS_FDSN_EARTHQUAKES"],
@@ -95,7 +103,10 @@ with DAG(
     @task()
     def list_to_df_to_parquet_to_local(feature_list):
         df = pd.DataFrame.from_dict(feature_list)
-        df.to_parquet(f'{LOCAL_PARQUET}')
+        df['properties_time_datetime'] = pd.to_datetime(df['properties_time'])
+        df['properties_updated_datetime'] = pd.to_datetime(df['properties_updated'])
+        df['quake_metadata_generated_datetime'] = pd.to_datetime(df['quake_metadata_generated'])
+        df.to_parquet(f'{LOCAL_PARQUET}', use_deprecated_int96_timestamps=True)
         LOCAL_PARQUET_save = LOCAL_PARQUET
         return LOCAL_PARQUET_save
     @task()
@@ -106,25 +117,19 @@ with DAG(
         blob.upload_from_filename(LOCAL_PARQUET_SAVE)
         return DESTINATION_BLOB_PARQUET
 
-    # bigquery_external_table_task = BigQueryCreateExternalTableOperator(
-    # task_id="bigquery_external_table_task",
-    # table_resource={
-    #     "tableReference": {
-    #         "projectId": PROJECT_ID,
-    #         "datasetId": BIGQUERY_DATASET,
-    #         "tableId": "external_table",
-    #     },
-    #     "externalDataConfiguration": {
-    #         "sourceFormat": "PARQUET",
-    #         "sourceUris": [f"gs://{BUCKET}/{DESTINATION_BLOB_PARQUET}"],
-    #     },
-    #     },
-    # )
-    
+    bq_load_data = BigQueryInsertJobOperator(
+    task_id="bigquery_load_data_task",
+    configuration={
+        "query": {
+            "query": BQ_LOAD_DATA_QUERY,
+            "useLegacySql": False,
+            }
+        }
+    )
+
     api_data = python_requests_api(API_URL)
     exported_list = nested_json_to_list(api_data)
     local_file_sent =  list_to_df_to_parquet_to_local(exported_list)
     uploaded = upload_to_gcs(BUCKET, local_file_sent, DESTINATION_BLOB_PARQUET)
-
-    api_data >> exported_list >> local_file_sent >> uploaded 
+    api_data >> exported_list >> local_file_sent >> uploaded >> bq_load_data
   
