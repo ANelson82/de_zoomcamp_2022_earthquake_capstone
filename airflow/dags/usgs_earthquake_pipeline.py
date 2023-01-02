@@ -124,6 +124,7 @@ def usgs_earthquake_pipeline_v3():
             },
         )
         return bigquery_external_table_task
+    
     api_data = python_requests_api(api_url)
     exported_list = nested_json_to_list(api_data)
     local_file_sent =  list_to_df_to_parquet_to_local(exported_list)

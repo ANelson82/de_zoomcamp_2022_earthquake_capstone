@@ -1,13 +1,11 @@
-import json
 import os 
 import pendulum
 import requests
 import pandas as pd
-import pyarrow
 import datetime
 
-from airflow.decorators import dag, task
-from airflow.operators.python_operator import PythonOperator
+from airflow import DAG
+from airflow.decorators import task
 from airflow.providers.google.cloud.operators.bigquery import BigQueryCreateExternalTableOperator
 from google.cloud import storage
 from google.oauth2 import service_account
@@ -15,33 +13,33 @@ from google.oauth2 import service_account
 AIRFLOW_HOME = os.environ.get("AIRFLOW_HOME")
 PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
 BUCKET = os.environ.get("GCP_GCS_BUCKET")
-BIGQUERY_DATASET = os.environ.get("BIGQUERY_DATASET")
+BIGQUERY_DATASET = os.environ.get("BIGQUERY_DATASET", 'raw_usgs_earthquake')
 CREDENTIALS_DIR = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 SERVICE_ACCOUNT_CREDENTIALS = service_account.Credentials.from_service_account_file(f"{CREDENTIALS_DIR}")
 
-day_before_yesterday = '{{ macros.ds_add(ds, -2) }}'
-yesterday = '{{ macros.ds_add(ds, -1) }}'
-api_url = f'https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime={day_before_yesterday}&endtime={yesterday}'
-local_parquet = f'{AIRFLOW_HOME}/usgs_fdsn_{yesterday}.parquet'
-destination_blob_parquet = f"usgs_fdsn_raw/data_{yesterday}.parquet"
+DAY_BEFORE_YESTERDAY = '{{ macros.ds_add(ds, -2) }}'
+YESTERDAY = '{{ macros.ds_add(ds, -1) }}'
+API_URL = f'https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime={DAY_BEFORE_YESTERDAY}&endtime={YESTERDAY}'
+LOCAL_PARQUET = f'{AIRFLOW_HOME}/usgs_fdsn_{YESTERDAY}.parquet'
+DESTINATION_BLOB_PARQUET = f"usgs_fdsn_raw/data_{YESTERDAY}.parquet"
 
-@dag(
+with DAG(
+    dag_id='usgs_earthquake_pipeline_v6',
     schedule="@daily",
     default_args={
-        "depends_on_past": True,
-        "retries": 1,
+        "depends_on_past": False,
+        "retries": 0,
         "retry_delay": datetime.timedelta(minutes=3),
     },
     start_date=pendulum.datetime(2022, 12, 26, tz="UTC"),
     description="DE_Zoomcamp Capstone Project Pipeline by Andy Nelson",
     catchup=False,
     tags=["USGS_FDSN_EARTHQUAKES"],
-)
+) as dag:
 
-def usgs_earthquake_pipeline_v4():
     @task()
-    def python_requests_api(api_url):
-        json_data = requests.get(api_url).json()
+    def python_requests_api(API_URL):
+        json_data = requests.get(API_URL).json()
         return json_data
     @task()
     def nested_json_to_list(json_data):
@@ -97,54 +95,36 @@ def usgs_earthquake_pipeline_v4():
     @task()
     def list_to_df_to_parquet_to_local(feature_list):
         df = pd.DataFrame.from_dict(feature_list)
-        df.to_parquet(f'{local_parquet}')
-        local_parquet_save = local_parquet
-        return local_parquet_save
+        df.to_parquet(f'{LOCAL_PARQUET}')
+        LOCAL_PARQUET_save = LOCAL_PARQUET
+        return LOCAL_PARQUET_save
     @task()
-    def upload_to_gcs(BUCKET, local_parquet_save, destination_blob_parquet):
+    def upload_to_gcs(BUCKET, LOCAL_PARQUET_SAVE, DESTINATION_BLOB_PARQUET):
         client = storage.Client(credentials=SERVICE_ACCOUNT_CREDENTIALS)
         bucket = client.bucket(BUCKET)
-        blob = bucket.blob(destination_blob_parquet)
-        blob.upload_from_filename(local_parquet_save)
-        return destination_blob_parquet
-    api_data = python_requests_api(api_url)
+        blob = bucket.blob(DESTINATION_BLOB_PARQUET)
+        blob.upload_from_filename(LOCAL_PARQUET_SAVE)
+        return DESTINATION_BLOB_PARQUET
+
+    bigquery_external_table_task = BigQueryCreateExternalTableOperator(
+    task_id="bigquery_external_table_task",
+    table_resource={
+        "tableReference": {
+            "projectId": PROJECT_ID,
+            "datasetId": BIGQUERY_DATASET,
+            "tableId": "external_table",
+        },
+        "externalDataConfiguration": {
+            "sourceFormat": "PARQUET",
+            "sourceUris": [f"gs://{BUCKET}/{DESTINATION_BLOB_PARQUET}"],
+        },
+        },
+    )
+    
+    api_data = python_requests_api(API_URL)
     exported_list = nested_json_to_list(api_data)
     local_file_sent =  list_to_df_to_parquet_to_local(exported_list)
-    upload_to_gcs(BUCKET, local_file_sent, destination_blob_parquet)
-usgs_earthquake_pipeline_v4()
+    uploaded = upload_to_gcs(BUCKET, local_file_sent, DESTINATION_BLOB_PARQUET)
 
-
-# @dag(
-#     schedule="@daily",
-#     default_args={
-#         "depends_on_past": True,
-#         "retries": 1,
-#         "retry_delay": datetime.timedelta(minutes=3),
-#     },
-#     start_date=pendulum.datetime(2022, 12, 26, tz="UTC"),
-#     description="DE_Zoomcamp Capstone Project Pipeline by Andy Nelson",
-#     catchup=False,
-#     tags=["USGS_FDSN_EARTHQUAKES"],
-# )
-def gcs_2_bigquery_external():
-        bigquery_external_table_task = BigQueryCreateExternalTableOperator(
-        task_id="bigquery_external_table_task",
-        table_resource={
-            "tableReference": {
-                "projectId": PROJECT_ID,
-                "datasetId": BIGQUERY_DATASET,
-                "tableId": "external_table",
-            },
-            "externalDataConfiguration": {
-                "sourceFormat": "PARQUET",
-                "sourceUris": [f"gs://{BUCKET}/{destination_blob_parquet}"],
-            },
-            },
-        )
-        return bigquery_external_table_task
-
-with DAG("my_dag") as dag:
-    first_dag = usgs_earthquake_pipeline_v4()
-second_dag = gcs_2_bigquery_external()
-
-first_dag >> second_dag
+    api_data >> exported_list >> local_file_sent >> uploaded >> bigquery_external_table_task
+  
