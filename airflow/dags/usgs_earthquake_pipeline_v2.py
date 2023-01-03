@@ -107,8 +107,8 @@ with DAG(
         df['properties_updated_datetime'] = pd.to_datetime(df['properties_updated'])
         df['quake_metadata_generated_datetime'] = pd.to_datetime(df['quake_metadata_generated'])
         df.to_parquet(f'{LOCAL_PARQUET}', use_deprecated_int96_timestamps=True)
-        LOCAL_PARQUET_save = LOCAL_PARQUET
-        return LOCAL_PARQUET_save
+        LOCAL_PARQUET_SAVE = LOCAL_PARQUET
+        return LOCAL_PARQUET_SAVE
     @task()
     def upload_to_gcs(BUCKET, LOCAL_PARQUET_SAVE, DESTINATION_BLOB_PARQUET):
         client = storage.Client(credentials=SERVICE_ACCOUNT_CREDENTIALS)
@@ -116,6 +116,15 @@ with DAG(
         blob = bucket.blob(DESTINATION_BLOB_PARQUET)
         blob.upload_from_filename(LOCAL_PARQUET_SAVE)
         return DESTINATION_BLOB_PARQUET
+    @task()
+    def delete_local_file(LOCAL_PARQUET_SAVE):
+        myfile = f"{LOCAL_PARQUET_SAVE}"
+        # If file exists, delete it.
+        if os.path.isfile(myfile):
+            os.remove(myfile)
+        else:
+            # If it fails, inform the user.
+            print("Error: %s file not found" % myfile)
 
     bq_load_data = BigQueryInsertJobOperator(
     task_id="bigquery_load_data_task",
@@ -131,5 +140,6 @@ with DAG(
     exported_list = nested_json_to_list(api_data)
     local_file_sent =  list_to_df_to_parquet_to_local(exported_list)
     uploaded = upload_to_gcs(BUCKET, local_file_sent, DESTINATION_BLOB_PARQUET)
+    local_file_deleted = delete_local_file(uploaded)
     api_data >> exported_list >> local_file_sent >> uploaded >> bq_load_data
   
