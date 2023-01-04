@@ -11,9 +11,10 @@ from google.cloud import storage
 from google.oauth2 import service_account
 
 AIRFLOW_HOME = os.environ.get("AIRFLOW_HOME")
-PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
+GCP_PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
 BUCKET = os.environ.get("GCP_GCS_BUCKET")
 BIGQUERY_DATASET = os.environ.get("BIGQUERY_DATASET", 'raw_usgs_earthquake')
+BIGQUERY_TABLE = 'raw_earthquake_ingestion'
 CREDENTIALS_DIR = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 SERVICE_ACCOUNT_CREDENTIALS = service_account.Credentials.from_service_account_file(f"{CREDENTIALS_DIR}")
 
@@ -24,7 +25,7 @@ LOCAL_PARQUET = f'{AIRFLOW_HOME}/usgs_fdsn_{YESTERDAY}.parquet'
 DESTINATION_BLOB_PARQUET = f"usgs_fdsn_raw/data_{YESTERDAY}.parquet"
 
 BQ_LOAD_DATA_QUERY = (
-                f"LOAD DATA INTO `{PROJECT_ID}.{BIGQUERY_DATASET}.test_native_load_data3` \
+                f"LOAD DATA INTO `{GCP_PROJECT_ID}.{BIGQUERY_DATASET}.{BIGQUERY_TABLE}` \
                 FROM FILES( \
                     format='PARQUET', \
                     uris = ['gs://{BUCKET}/{DESTINATION_BLOB_PARQUET}'] \
@@ -32,7 +33,7 @@ BQ_LOAD_DATA_QUERY = (
             )
 
 with DAG(
-    dag_id='usgs_earthquake_pipeline_v11',
+    dag_id='usgs_earthquake_pipeline_v12',
     schedule="@daily",
     default_args={
         "depends_on_past": False,
