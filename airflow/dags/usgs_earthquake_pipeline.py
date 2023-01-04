@@ -43,6 +43,7 @@ with DAG(
     start_date=pendulum.datetime(2022, 12, 26, tz="UTC"),
     description="DE_Zoomcamp Capstone Project Pipeline by Andy Nelson",
     catchup=True,
+    max_active_runs=1,
     tags=["USGS_FDSN_EARTHQUAKES"],
 ) as dag:
 
