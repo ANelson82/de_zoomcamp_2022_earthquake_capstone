@@ -6,6 +6,8 @@ import datetime
 
 from airflow import DAG
 from airflow.decorators import task
+from airflow.operators.bash import BashOperator
+from airflow.operators.python import ShortCircuitOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from google.cloud import storage
 from google.oauth2 import service_account
@@ -32,8 +34,14 @@ BQ_LOAD_DATA_QUERY = (
                 )"
             )
 
+# def parquet_exists_in_gcs(BUCKET, DESTINATION_BLOB_PARQUET):
+#         client = storage.Client()
+#         bucket = client.get_bucket(BUCKET)
+#         blob = bucket.blob(DESTINATION_BLOB_PARQUET)
+#         return blob.exists()
+
 with DAG(
-    dag_id='usgs_earthquake_pipeline_v12',
+    dag_id='usgs_earthquake_pipeline_v15',
     schedule="@daily",
     default_args={
         "depends_on_past": False,
@@ -42,10 +50,25 @@ with DAG(
     },
     start_date=pendulum.datetime(2022, 12, 26, tz="UTC"),
     description="DE_Zoomcamp Capstone Project Pipeline by Andy Nelson",
-    catchup=True,
+    catchup=False,
     max_active_runs=1,
     tags=["USGS_FDSN_EARTHQUAKES"],
 ) as dag:
+
+    # @task()
+    # def echo_blob_file(DESTINATION_BLOB_PARQUET):
+    #     bash_instance = BashOperator(
+    #     task_id="also_run_this",
+    #     bash_command=f'echo {DESTINATION_BLOB_PARQUET2}',
+    #     )
+    #     return DESTINATION_BLOB_PARQUET
+
+    @task.short_circuit()
+    def parquet_exists_in_gcs(BUCKET, DESTINATION_BLOB_PARQUET):
+        client = storage.Client()
+        bucket = client.get_bucket(BUCKET)
+        blob = bucket.blob(DESTINATION_BLOB_PARQUET)
+        return blob.exists()
 
     @task()
     def python_requests_api(API_URL):
@@ -121,11 +144,9 @@ with DAG(
     @task()
     def delete_local_file(LOCAL_PARQUET_SAVE):
         myfile = f"{LOCAL_PARQUET_SAVE}"
-        # If file exists, delete it.
         if os.path.isfile(myfile):
             os.remove(myfile)
         else:
-            # If it fails, inform the user.
             print("Error: %s file not found" % myfile)
 
     bq_load_data = BigQueryInsertJobOperator(
@@ -138,10 +159,25 @@ with DAG(
         }
     )
 
+    bash_instance = BashOperator(
+    task_id="echo_destination_blob_parquet",
+    bash_command=f'echo "{DESTINATION_BLOB_PARQUET}"',
+    )
+
+    # test_parquet_already_present = ShortCircuitOperator(
+    #     task_id='test_parquet_already_present',
+    #     provide_context=True,
+    #     python_callable=parquet_exists_in_gcs,
+    #     op_kwargs=
+    # )
+
+    # bash_echo_sent = echo_blob_file()
+    # test_return = test_parquet_already_present()
+    boolean_parquet_in_gcs = parquet_exists_in_gcs(BUCKET, DESTINATION_BLOB_PARQUET)
     api_data = python_requests_api(API_URL)
     exported_list = nested_json_to_list(api_data)
     local_file_sent =  list_to_df_to_parquet_to_local(exported_list)
     uploaded = upload_to_gcs(BUCKET, local_file_sent, DESTINATION_BLOB_PARQUET)
     local_file_deleted = delete_local_file(uploaded)
-    api_data >> exported_list >> local_file_sent >> uploaded >> bq_load_data
+    bash_instance >> boolean_parquet_in_gcs >> api_data >> exported_list >> local_file_sent >> uploaded >> bq_load_data
   
