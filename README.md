@@ -40,10 +40,15 @@ https://earthquake.usgs.gov/fdsnws/event/1/query?format={format}&starttime={yyyy
 The [geojson](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) data format was used in this project.
 
 # Data Transformation
-The [REST API json response](de_zoomcamp_2022_earthquake_capstone/sample_data/sample_earthquake_response.json) comes a nested json structure.  The seismic events that are of the most interest are in the "features" array that needs to be iterated over and extracted into a Python array.  This array was turned into a [Pandas dataframe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html).  Additional columns were created that converted the UNIX or POSIX time (ms) into datetime object.
+- The [REST API json response](de_zoomcamp_2022_earthquake_capstone/sample_data/sample_earthquake_response.json) comes a nested json structure. 
+- The seismic events that are of the most interest are in the "features" array that needs to be iterated over and extracted into a Python array.
+- This array was turned into a [Pandas dataframe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html).
+- Additional columns were created that converted the UNIX or POSIX time (ms) into datetime object.
 
 # Data Modeling
-The data was denormalized and modeled using the One Big Table(OBT) method.  This allows for no joins of the data for the analyst and [typically faster query performance for data warehouses](https://www.fivetran.com/blog/star-schema-vs-obt). Additional storage costs are typically a non-issue.
+- The data was denormalized and modeled using the One Big Table(OBT) method. 
+- This allows for no joins of the data for the analyst and [typically faster query performance for data warehouses](https://www.fivetran.com/blog/star-schema-vs-obt). 
+- Additional storage costs are typically a non-issue.
 
 # Data Storage
 - The raw parquet files that arrive daily are stored in GCS
@@ -64,11 +69,12 @@ The DAG does the following on a '@daily' schedule:
 # Dashboard
 #todo Dashboard link and photo
 
-# Future Work
+# Future Work That Could Be Done
 1. More experimentation with the Airflow configuration and VM instance. I would like to attempt a lightweight version using the [sequential executor](https://airflow.apache.org/docs/apache-airflow/stable/executor/sequential.html) instead of the [celery executor](https://airflow.apache.org/docs/apache-airflow/stable/executor/celery.html) and [SQLite over Postgres backend](https://airflow.apache.org/docs/apache-airflow/stable/howto/set-up-database.html#choosing-database-backend).
 1. I would like to try more automation around the devops implimentation of the entire pipeline.  I would like to see if I could automate more of the dockerfile to execute more steps of the initialization.
-1. Explore making the airflow instance less brittle. Not using any local compute, but rather push more compute to [cloud functions](https://cloud.google.com/functions)
-1. Build out more reports, more testing, explore different methods surrounding dbt
+1. Explore making the airflow instance less brittle. Not using any local compute, but rather push more compute to external [cloud functions](https://cloud.google.com/functions).
+1. Build out more reports, more testing, explore different methods surrounding dbt.
+1. Data Science, Time Series Analysis
 
 # Acknowledgements
 Thanks to the instructors.
@@ -76,13 +82,13 @@ Thanks to the instructors.
 - [Sejal Vaidya](https://github.com/sejalv)
 - [Victoria Perez Mola](https://github.com/Victoriapm)
 - [Ankush Khanna](https://github.com/AnkushKhanna)
-- The other students
+- My fellow zoomcamp students.
 
 And my employer and teammates.
 - [evolv Consulting](https://evolv.consulting/)
 
 # LinkedIn
-[My Linkedin](https://www.linkedin.com/in/andynelson1982/)
+- [My Linkedin](https://www.linkedin.com/in/andynelson1982/)
 
 # Helpful Resources
 1. Data Engineering Resource Gathering
