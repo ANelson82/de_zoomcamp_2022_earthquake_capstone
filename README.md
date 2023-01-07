@@ -48,7 +48,7 @@ The [geojson](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) dat
 - This array was turned into a [Pandas dataframe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html).
 - Additional columns were created that converted the UNIX or POSIX time (ms) into datetime object.
 
-- Example of Flattened data ![USGS API json Example](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/flattened_data.jpg)
+- Example of Flattened data ![USGS API json Example](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/flattened_data.png)
 
 # Data Modeling
 - The data was denormalized and modeled using the One Big Table(OBT) method. 
