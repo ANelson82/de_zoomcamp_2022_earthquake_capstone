@@ -31,9 +31,9 @@ Analysts are studying the frequency, intensity, and spatial occurrence of seismi
 
 # Dataset
 The data comes from access of a [public REST API](https://earthquake.usgs.gov/fdsnws/event/1/) from the [USGS](https://www.usgs.gov/) in collaboration with the [International Federation of Digital Seismograph Networks](http://www.fdsn.org/webservices/FDSN-WS-Specifications-1.0.pdf) (FDSN). The data is accessed through the query API endpoint, which has 3 parameters:
-- {format}
-- starttime{yyyy-mm-dd}
-- endtime{yyyy-mm-dd}
+- format={geojson}
+- starttime={yyyy-mm-dd}
+- endtime={yyyy-mm-dd}
 
 https://earthquake.usgs.gov/fdsnws/event/1/query?format={format}&starttime={yyyy-mm-dd}&endtime={yyyy-mm-dd}
 
@@ -47,6 +47,8 @@ The [geojson](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) dat
 - The seismic events that are of the most interest are in the "features" array of objects that needs to be iterated over and extracted into a Python array.
 - This array was turned into a [Pandas dataframe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html).
 - Additional columns were created that converted the UNIX or POSIX time (ms) into datetime object.
+
+- Example of Flattened data ![USGS API json Example](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/flattened_data.jpg)
 
 # Data Modeling
 - The data was denormalized and modeled using the One Big Table(OBT) method. 
