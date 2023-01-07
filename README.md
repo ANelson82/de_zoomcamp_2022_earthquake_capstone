@@ -1,6 +1,9 @@
-# earthquake_2023
+# Earthquake Data Engineering Pipeline Capstone Project
 
-Time to type notes here.
+This project 
+
+
+![Data Pipeline Architecture](de_zoomcamp_2022_earthquake_capstone/images/architecture_earthquake.excalidraw.png)
 
 # Airflow Steps
 For my capstone I've successfully authored a DAG that does the following on a '@daily' schedule:
