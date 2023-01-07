@@ -3,7 +3,7 @@
 This project 
 
 
-![Data Pipeline Architecture](de_zoomcamp_2022_earthquake_capstone/images/architecture_earthquake.excalidraw.png)
+![Data Pipeline Architecture](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/architecture_earthquake.excalidraw.png)
 
 # Airflow Steps
 For my capstone I've successfully authored a DAG that does the following on a '@daily' schedule:
