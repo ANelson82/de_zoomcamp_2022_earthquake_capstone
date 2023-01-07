@@ -18,13 +18,13 @@ Analysts are studying the frequency, intensity, and spatial occurrence of seismi
 1. Adaptable (additional future analysis and machine learning)
 
 # Technology Utilized
-- **Infrastructure as code (IaC):** Terraform
-- **Workflow orchestration:** Airflow
-- **Containerization:** Docker
-- **Data Lake:** Google Cloud Storage (GCS)
-- **Data Warehouse:** BigQuery
-- **Transformations:** dbt
-- **Visualization:** Google Data Studio
+- **Infrastructure as code (IaC):** [Terraform](https://github.com/hashicorp/terraform)
+- **Workflow orchestration:** [Airflow](https://airflow.apache.org/)
+- **Containerization:** [Docker](https://www.docker.com/)
+- **Data Lake:** [Google Cloud Storage (GCS)](https://cloud.google.com/storage)
+- **Data Warehouse:** [BigQuery](https://cloud.google.com/bigquery)
+- **Transformations:** [dbt](https://www.getdbt.com/)
+- **Visualization:** [Google Data Studio / Looker Studio](https://lookerstudio.google.com/)
 
 # Dataset
 The data comes from access of a [public REST API](https://earthquake.usgs.gov/fdsnws/event/1/) from the [USGS](https://www.usgs.gov/) in collaboration with the [International Federation of Digital Seismograph Networks](http://www.fdsn.org/webservices/FDSN-WS-Specifications-1.0.pdf) (FDSN). The data is accessed through the query API endpoint, which has 3 parameters, data-format, startdate, enddate:
