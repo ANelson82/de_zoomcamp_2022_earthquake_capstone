@@ -12,10 +12,13 @@ This GitHub repository fulfills the final capstone project for the [Data Enginee
 
 # Technical Challenge
 Analysts are studying the frequency, intensity, and spatial occurrence of seismic activity.  This data needs to be automatically stored and processed in a way that analysts can quickly analyze and build out reports and dashboards.  The technical implementation needs to be:
-1. Affordable
+1. Affordable 
+1. Reliable
+1. Scalable
+1. Approachable (Easy to use)
 1. Automated 
 1. Flexible (to ingest additional data)
-1. Adaptable (additional future analysis and machine learning)
+1. Accommodating (additional future analysis and machine learning)
 
 # Technology Utilized
 - **Infrastructure as code (IaC):** [Terraform](https://github.com/hashicorp/terraform)
@@ -39,7 +42,11 @@ The [REST API json response](de_zoomcamp_2022_earthquake_capstone/sample_data/sa
 # Data Modeling
 The data was denormalized and modeled using the One Big Table(OBT) method.  This allows for no joins of the data for the analyst and [typically faster query performance for data warehouses](https://www.fivetran.com/blog/star-schema-vs-obt). Additional storage costs are typically a non-issue.
 
-# Workflow Orchestration 
+# Data Storage
+- The data is stored initially in a raw stage as a native BigQuery table.
+- The raw parquet files are 
+- The data is transformed by dbt and materialized as a native BigQuery table that is 
+# Airflow Orchestration 
 The DAG does the following on a '@daily' schedule:
 - Parameterizes the API endpoint to use the dates passed in by using the [Airflow provided template variables](https://airflow.apache.org/docs/apache-airflow/stable/templates-ref.html)
 - uses the [Python requests library](https://requests.readthedocs.io/en/latest/) store the API data in local memory into a variable
@@ -47,6 +54,10 @@ The DAG does the following on a '@daily' schedule:
 - converts the DataFrame into a [parquet file](https://parquet.apache.org/docs/) that gets saved locally
 - uploads the parquet into my [Google Cloud Storage](https://cloud.google.com/storage) datalake with the parameterized date as filename
 - #todo finish dag steps
+- #todo add dag screenshot
+
+# dbt Transformation
+#todo dbt
 # Dashboard
 #todo Dashboard link and photo
 
