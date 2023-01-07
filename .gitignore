@@ -1,4 +1,4 @@
+logs/
 airflow/.env
 airflow/dags/__pycache__/*
 airflow/logs/*
-de_zoomcamp_2022_earthquake_capstone/logs
