@@ -15,10 +15,10 @@ Analysts are studying the frequency, intensity, and spatial occurrence of seismi
 1. Affordable 
 1. Reliable
 1. Scalable
-1. Approachable (Easy to use)
+1. Approachable
 1. Automated 
-1. Flexible (to ingest additional data)
-1. Accommodating (additional future analysis and machine learning)
+1. Flexible
+1. Future-Proof
 
 # Technology Utilized
 - **Infrastructure as code (IaC):** [Terraform](https://github.com/hashicorp/terraform)
@@ -30,11 +30,14 @@ Analysts are studying the frequency, intensity, and spatial occurrence of seismi
 - **Visualization:** [Google Data Studio / Looker Studio](https://lookerstudio.google.com/)
 
 # Dataset
-The data comes from access of a [public REST API](https://earthquake.usgs.gov/fdsnws/event/1/) from the [USGS](https://www.usgs.gov/) in collaboration with the [International Federation of Digital Seismograph Networks](http://www.fdsn.org/webservices/FDSN-WS-Specifications-1.0.pdf) (FDSN). The data is accessed through the query API endpoint, which has 3 parameters, data-format, startdate, enddate:
+The data comes from access of a [public REST API](https://earthquake.usgs.gov/fdsnws/event/1/) from the [USGS](https://www.usgs.gov/) in collaboration with the [International Federation of Digital Seismograph Networks](http://www.fdsn.org/webservices/FDSN-WS-Specifications-1.0.pdf) (FDSN). The data is accessed through the query API endpoint, which has 3 parameters:
+- {format}
+- {starttime}
+- {endtime}
 
 https://earthquake.usgs.gov/fdsnws/event/1/query?format={format}&starttime={yyyy-mm-dd}&endtime={yyyy-mm-dd}
 
-For this project I used the [geojson](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) format.
+The [geojson](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) data format was used in this project.
 
 # Data Transformation
 The [REST API json response](de_zoomcamp_2022_earthquake_capstone/sample_data/sample_earthquake_response.json) comes a nested json structure.  The seismic events that are of the most interest are in the "features" array that needs to be iterated over and extracted into a Python array.  This array was turned into a [Pandas dataframe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html).  Additional columns were created that converted the UNIX or POSIX time (ms) into datetime object.
@@ -43,8 +46,8 @@ The [REST API json response](de_zoomcamp_2022_earthquake_capstone/sample_data/sa
 The data was denormalized and modeled using the One Big Table(OBT) method.  This allows for no joins of the data for the analyst and [typically faster query performance for data warehouses](https://www.fivetran.com/blog/star-schema-vs-obt). Additional storage costs are typically a non-issue.
 
 # Data Storage
+- The raw parquet files that arrive daily are stored in GCS
 - The data is stored initially in a raw stage as a native BigQuery table.
-- The raw parquet files are 
 - The data is transformed by dbt and materialized as a native BigQuery table that is 
 # Airflow Orchestration 
 The DAG does the following on a '@daily' schedule:
@@ -78,6 +81,8 @@ Thanks to the instructors.
 And my employer and teammates.
 - [evolv Consulting](https://evolv.consulting/)
 
+# LinkedIn
+[My Linkedin](https://www.linkedin.com/in/andynelson1982/)
 
 # Helpful Resources
 1. Data Engineering Resource Gathering
