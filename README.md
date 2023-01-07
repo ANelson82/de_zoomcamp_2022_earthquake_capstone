@@ -59,15 +59,16 @@ Thanks to the instructors.
 - [Victoria Perez Mola](https://github.com/Victoriapm)
 - [Ankush Khanna](https://github.com/AnkushKhanna)
 
-And my employer and teamates.
+And my employer and teammates.
 - [evolv Consulting](https://evolv.consulting/)
+
 
 # Helpful Resources
 1. Data Engineering Resource Gathering
     [Joseph Machado - How to gather requirements for your data project](https://www.startdataengineering.com/post/n-questions-data-pipeline-req/)
 1. [Fivetran Star Schema vs OBT](https://www.fivetran.com/blog/star-schema-vs-obt)
 1. Airflow Resources
-	1. Adylzhan Khashtamov, Kazakastan DE
+	1. Adylzhan Khashtamov, Kazakhstan DE
 		1. https://github.com/adilkhash
 		1. https://github.com/adilkhash/airflow-taskflow-api-examples
 	1. Kenten Danas, Astronomer.io DE
