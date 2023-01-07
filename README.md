@@ -39,6 +39,7 @@ https://earthquake.usgs.gov/fdsnws/event/1/query?format={format}&starttime={yyyy
 
 The [geojson](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) data format was used in this project.
 
+- Example of json response:
 ![USGS API json Example](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/usgs_api_json.jpg)
 
 # Data Transformation
