@@ -12,13 +12,13 @@ This GitHub repository fulfills the final capstone project for the [Data Enginee
 
 # Technical Challenge
 Analysts are studying the frequency, intensity, and spatial occurrence of seismic activity.  This data needs to be automatically stored and processed in a way that analysts can quickly analyze and build out reports and dashboards.  The technical implementation needs to be:
-1. Affordable 
-1. Reliable
-1. Scalable
-1. Approachable
-1. Automated 
-1. Flexible
-1. Future-Proof
+- Affordable 
+- Reliable
+- Scalable
+- Approachable
+- Automated 
+- Flexible
+- Future-Proof
 
 # Technology Utilized
 - **Infrastructure as code (IaC):** [Terraform](https://github.com/hashicorp/terraform)
@@ -32,16 +32,18 @@ Analysts are studying the frequency, intensity, and spatial occurrence of seismi
 # Dataset
 The data comes from access of a [public REST API](https://earthquake.usgs.gov/fdsnws/event/1/) from the [USGS](https://www.usgs.gov/) in collaboration with the [International Federation of Digital Seismograph Networks](http://www.fdsn.org/webservices/FDSN-WS-Specifications-1.0.pdf) (FDSN). The data is accessed through the query API endpoint, which has 3 parameters:
 - {format}
-- {starttime}
-- {endtime}
+- starttime{yyyy-mm-dd}
+- endtime{yyyy-mm-dd}
 
 https://earthquake.usgs.gov/fdsnws/event/1/query?format={format}&starttime={yyyy-mm-dd}&endtime={yyyy-mm-dd}
 
 The [geojson](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) data format was used in this project.
 
+![USGS API json Example](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/usgs_api_json.jpg)
+
 # Data Transformation
 - The [REST API json response](de_zoomcamp_2022_earthquake_capstone/sample_data/sample_earthquake_response.json) comes a nested json structure. 
-- The seismic events that are of the most interest are in the "features" array that needs to be iterated over and extracted into a Python array.
+- The seismic events that are of the most interest are in the "features" array of objects that needs to be iterated over and extracted into a Python array.
 - This array was turned into a [Pandas dataframe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html).
 - Additional columns were created that converted the UNIX or POSIX time (ms) into datetime object.
 
