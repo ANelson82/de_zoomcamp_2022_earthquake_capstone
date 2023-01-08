@@ -1,12 +1,9 @@
 version: 2 
 
 sources:
-  - name: staging
+  - name: raw
     database: top-cascade-372816
     schema: raw_usgs_earthquake
 
     tables: 
     - name: raw_earthquake
-
-models:
-    - name: stg_earthquake

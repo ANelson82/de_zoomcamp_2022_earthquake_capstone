@@ -1,14 +1,9 @@
-version: 2 
+# version: 2 
 
-models:
-  - name: fact_earthquakes
-    description: >
-      Depulicated Raw earthquakes
+# sources:
+#   - name: stg
+#     database: top-cascade-372816
+#     schema: dbt_andy_nelson
 
-sources:
-  - name: core
-    database: top-cascade-372816
-    schema: core_earthquakes
-
-    tables: 
-    - name: raw_earthquake
+#     tables: 
+#     - name: stg_earthquake
