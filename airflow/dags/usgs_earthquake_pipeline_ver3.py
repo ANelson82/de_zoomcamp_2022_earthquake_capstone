@@ -35,7 +35,7 @@ BQ_LOAD_DATA_QUERY = (
             )
 
 with DAG(
-    dag_id='usgs_earthquake_pipeline_v24',
+    dag_id='usgs_earthquake_pipeline_v25',
     schedule="@daily",
     default_args={
         "depends_on_past": False,
@@ -75,6 +75,7 @@ with DAG(
         df['properties.time.datetime'] = pd.to_datetime(df['properties.time'], unit='ms')
         df['properties.updated.datetime'] = pd.to_datetime(df['properties.updated'], unit='ms')
         df['metadata.generated.datetime'] = pd.to_datetime(df['generated'], unit='ms')
+        df['dataframe_timestamp_now'] = pd.Timestamp.now()
         df.columns = df.columns.str.replace(".","_", regex=False)
         df.to_parquet(f'{LOCAL_PARQUET}', use_deprecated_int96_timestamps=True)
         return LOCAL_PARQUET
