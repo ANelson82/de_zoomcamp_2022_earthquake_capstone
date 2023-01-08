@@ -1,0 +1,14 @@
+version: 2 
+
+models:
+  - name: fact_earthquakes
+    description: >
+      Depulicated Raw earthquakes
+
+sources:
+  - name: core
+    database: top-cascade-372816
+    schema: core_earthquakes
+
+    tables: 
+    - name: raw_earthquake

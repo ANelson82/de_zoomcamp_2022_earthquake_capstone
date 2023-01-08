@@ -7,7 +7,7 @@ version: '1.0.0'
 config-version: 2
 
 # This setting configures which "profile" dbt uses for this project.
-profile: 'dbt_earthquakes'
+profile: 'dbt'
 
 # These configurations specify where dbt should look for different types of files.
 # The `model-paths` config, for example, states that models in this project can be
@@ -33,6 +33,8 @@ clean-targets:         # directories to be removed by `dbt clean`
 # using the `{{ config(...) }}` macro.
 models:
   dbt_earthquakes:
-    # Config indicated by + and applies to all files under models/example/
-    # example:
-    #   +materialized: view
+      # Applies to all files under models/.../
+      staging:
+          materialized: view
+      core:
+          materialized: table
