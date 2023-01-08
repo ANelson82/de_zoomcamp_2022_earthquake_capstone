@@ -12,13 +12,11 @@ This GitHub repository fulfills the final capstone project for the [Data Enginee
 
 # Technical Challenge
 Analysts are studying the frequency, intensity, and spatial occurrence of seismic activity.  This data needs to be automatically stored and processed in a way that analysts can quickly analyze and build out reports and dashboards.  The technical implementation needs to be:
-- Affordable 
+- Automated 
 - Reliable
 - Scalable
-- Approachable
-- Automated 
-- Flexible
-- Future-Proof
+- Affordable 
+
 
 # Technology Utilized
 - **Infrastructure as code (IaC):** [Terraform](https://github.com/hashicorp/terraform)
@@ -70,7 +68,33 @@ The DAG does the following on a '@daily' schedule:
 - #todo add dag screenshot
 
 # dbt Transformation
-#todo dbt
+- dbt was used to take the `raw_earthquakes` data from BigQuery native table and deduplicate the data using a SQL window function.  
+- The goal is to have only one record of seismic event using the seismic 'id' column.
+- 'id' nulls are to be disgarded. 
+- Requirements dictate that only the latest version of the event based on it's 'properties_updated_datetime' timestamp are needed. 
+
+```
+select 
+	*,
+	row_number() over(partition by id, properties_updated_datetime) as rn
+from {{ source('raw','raw_earthquake') }}
+where id is not null
+```
+- The `stg_earthquakes` was materialized as view.
+- This view is the source reference for the `fact_earthquakes` table that is partitioned by "properties_time_datetime" timestamp and materialized as an incremental table.
+
+```
+{{ config(
+    materialized='incremental',
+    partition_by={
+      "field": "properties_updated_datetime",
+      "data_type": "timestamp",
+      "granularity": "day"
+    }
+)}}
+```
+
+
 # Dashboard
 #todo Dashboard link and photo
 
@@ -111,5 +135,7 @@ And my employer and teammates.
 		1. https://youtu.be/K9AnJ9_ZAXE
 	1. Marc Lamberti, Airflow Instructor
 		1. https://marclamberti.com/
+	1. Data Pipelines with Apache Airflow - Bas Harenslak / Julian de Ruiter
+		1. https://github.com/BasPH/data-pipelines-with-apache-airflow
 1. Practicing with REST API
 	1. https://gorest.co.in/

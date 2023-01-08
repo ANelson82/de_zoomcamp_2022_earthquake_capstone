@@ -13,8 +13,8 @@ from google.oauth2 import service_account
 AIRFLOW_HOME = os.environ.get("AIRFLOW_HOME")
 GCP_PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
 BUCKET = os.environ.get("GCP_GCS_BUCKET")
-BIGQUERY_DATASET = os.environ.get("BIGQUERY_DATASET", 'raw_usgs_earthquake')
-BIGQUERY_TABLE = 'raw_earthquake'
+BIGQUERY_DATASET = os.environ.get("BIGQUERY_DATASET", 'raw_usgs_earthquakes')
+BIGQUERY_TABLE = 'raw_earthquakes'
 CREDENTIALS_DIR = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 SERVICE_ACCOUNT_CREDENTIALS = service_account.Credentials.from_service_account_file(f"{CREDENTIALS_DIR}")
 
@@ -35,7 +35,7 @@ BQ_LOAD_DATA_QUERY = (
             )
 
 with DAG(
-    dag_id='usgs_earthquake_pipeline_v25',
+    dag_id='usgs_earthquakes_pipeline_v25',
     schedule="@daily",
     default_args={
         "depends_on_past": False,
