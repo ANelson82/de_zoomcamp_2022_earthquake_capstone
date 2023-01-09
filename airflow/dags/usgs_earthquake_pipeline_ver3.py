@@ -35,16 +35,16 @@ BQ_LOAD_DATA_QUERY = (
             )
 
 with DAG(
-    dag_id='usgs_earthquakes_pipeline_v25',
+    dag_id='usgs_earthquakes_pipeline_v32',
     schedule="@daily",
     default_args={
         "depends_on_past": False,
         "retries": 1,
         "retry_delay": datetime.timedelta(minutes=1),
     },
-    start_date=pendulum.datetime(2022, 12, 26, tz="UTC"),
+    start_date=pendulum.datetime(2023, 1, 4, tz="UTC"),
     description="DE_Zoomcamp Capstone Project Pipeline by Andy Nelson",
-    catchup=False,
+    catchup=True,
     max_active_runs=1,
     tags=["USGS_FDSN_EARTHQUAKES"],
 ) as dag:
@@ -71,7 +71,12 @@ with DAG(
         df_meta = pd.json_normalize(df['metadata'])
         df = pd.concat([df, df_meta], axis=1, join="inner")
         df[['geometry.coordinates.longitude', 'geometry.coordinates.latitude', 'geometry.coordinates.depth']] = df['geometry.coordinates'].tolist()
-        df.drop(['metadata', 'geometry.coordinates'], axis=1, inplace=True)
+        # df[['geometry.coordinates.latitude', 'geometry.coordinates.longitude']] = df[['geometry.coordinates.latitude', 'geometry.coordinates.longitude']].astype(str)
+        # df['geometry.coordinates.lat_long'] = "(" + df['geometry.coordinates.latitude'] + ", " + df['geometry.coordinates.longitude'] + ")"
+        df.drop(['metadata'], axis=1, inplace=True)
+        df['properties.alert'] = df['properties.alert'].astype(str)
+        df[['properties.mmi', 'properties.felt', 'properties.cdi', 'properties.tz', 'properties.tsunami', 'properties.sig']] = df[['properties.mmi', 'properties.felt', 'properties.cdi', 'properties.tz', 'properties.tsunami', 'properties.sig']].fillna(0)
+        df[['properties.felt', 'properties.cdi', 'properties.tz', 'properties.tsunami', 'properties.sig']] = df[['properties.felt', 'properties.cdi', 'properties.tz', 'properties.tsunami', 'properties.sig']].astype(int)
         df['properties.time.datetime'] = pd.to_datetime(df['properties.time'], unit='ms')
         df['properties.updated.datetime'] = pd.to_datetime(df['properties.updated'], unit='ms')
         df['metadata.generated.datetime'] = pd.to_datetime(df['generated'], unit='ms')
@@ -102,7 +107,7 @@ with DAG(
             print("Error: %s file not found" % my_json)
     
     bq_load_data = BigQueryInsertJobOperator(
-    task_id="bigquery_load_data_task",
+    task_id="bigquery_load_data",
     configuration={
         "query": {
             "query": BQ_LOAD_DATA_QUERY,
