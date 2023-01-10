@@ -70,7 +70,6 @@ The DAG does the following on a '@daily' schedule:
 # dbt Transformation
 - dbt was used to take the `raw_earthquakes` data from BigQuery native table and deduplicate the data using a SQL window function.  
 - The goal is to have only one record of seismic event using the seismic 'id' column.
-- 'id' nulls are to be disgarded. 
 - Requirements dictate that only the latest version of the event based on it's 'properties_updated_datetime' timestamp are needed. 
 
 ```
@@ -81,6 +80,7 @@ from {{ source('raw','raw_earthquake') }}
 where id is not null
 ```
 - The `stg_earthquakes` was materialized as view.
+- The cast function was used to rename columns and change data types.
 - This view is the source reference for the `fact_earthquakes` table that is partitioned by "properties_time_datetime" timestamp and materialized as an incremental table.
 
 ```
@@ -111,7 +111,6 @@ Thanks to the instructors.
 - [Sejal Vaidya](https://github.com/sejalv)
 - [Victoria Perez Mola](https://github.com/Victoriapm)
 - [Ankush Khanna](https://github.com/AnkushKhanna)
-- My fellow zoomcamp students.
 
 And my employer and teammates.
 - [evolv Consulting](https://evolv.consulting/)
