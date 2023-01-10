@@ -75,6 +75,8 @@ x-airflow-common:
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
     - /home/andy/.google/credentials:/.google/credentials
+    - /home/andy/de_zoomcamp_2022_earthquake_capstone/dbt:/dbt
+    - /home/andy/.dbt:/.dbt
 
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:

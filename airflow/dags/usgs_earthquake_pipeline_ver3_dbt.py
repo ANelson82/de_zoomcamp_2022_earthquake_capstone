@@ -1,12 +1,3 @@
-from __future__ import annotations
-
-import pendulum
-
-from airflow.decorators import dag, task
-from airflow.models.baseoperator import chain
-from airflow.operators.empty import EmptyOperator
-from airflow.utils.trigger_rule import TriggerRule
-
 import json
 import os 
 import pendulum
@@ -15,7 +6,7 @@ import pandas as pd
 import datetime
 from airflow import DAG
 from airflow.decorators import task
-from airflow.utils.trigger_rule import TriggerRule
+from airflow.operators.bash_operator import BashOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from google.cloud import storage
 from google.oauth2 import service_account
@@ -23,8 +14,8 @@ from google.oauth2 import service_account
 AIRFLOW_HOME = os.environ.get("AIRFLOW_HOME")
 GCP_PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
 BUCKET = os.environ.get("GCP_GCS_BUCKET")
-BIGQUERY_DATASET = os.environ.get("BIGQUERY_DATASET", 'raw_usgs_earthquake')
-BIGQUERY_TABLE = 'raw_earthquake'
+BIGQUERY_DATASET = os.environ.get("BIGQUERY_DATASET", 'raw_usgs_earthquakes')
+BIGQUERY_TABLE = 'raw_earthquakes'
 CREDENTIALS_DIR = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 SERVICE_ACCOUNT_CREDENTIALS = service_account.Credentials.from_service_account_file(f"{CREDENTIALS_DIR}")
 
@@ -45,25 +36,20 @@ BQ_LOAD_DATA_QUERY = (
             )
 
 with DAG(
-    dag_id='usgs_earthquake_pipeline_v24',
+    dag_id='usgs_earthquakes_pipeline_dbt_v01',
     schedule="@daily",
     default_args={
         "depends_on_past": False,
         "retries": 1,
         "retry_delay": datetime.timedelta(minutes=1),
     },
-    start_date=pendulum.datetime(2022, 12, 26, tz="UTC"),
+    start_date=pendulum.datetime(2023, 1, 4, tz="UTC"),
     description="DE_Zoomcamp Capstone Project Pipeline by Andy Nelson",
     catchup=False,
     max_active_runs=1,
     tags=["USGS_FDSN_EARTHQUAKES"],
 ) as dag:
-    # @task().short_circuit()
-    # def parquet_exists_in_gcs(BUCKET, DESTINATION_BLOB_PARQUET):
-    #     client = storage.Client()
-    #     bucket = client.get_bucket(BUCKET)
-    #     blob = bucket.blob(DESTINATION_BLOB_PARQUET)
-    #     return blob.exists()
+
     @task()
     def python_requests_api(API_URL):
         json_data = requests.get(API_URL).json()
@@ -86,10 +72,14 @@ with DAG(
         df_meta = pd.json_normalize(df['metadata'])
         df = pd.concat([df, df_meta], axis=1, join="inner")
         df[['geometry.coordinates.longitude', 'geometry.coordinates.latitude', 'geometry.coordinates.depth']] = df['geometry.coordinates'].tolist()
-        df.drop(['metadata', 'geometry.coordinates'], axis=1, inplace=True)
+        df.drop(['metadata'], axis=1, inplace=True)
+        df['properties.alert'] = df['properties.alert'].astype(str)
+        df[['properties.mmi', 'properties.felt', 'properties.cdi', 'properties.tz', 'properties.tsunami', 'properties.sig']] = df[['properties.mmi', 'properties.felt', 'properties.cdi', 'properties.tz', 'properties.tsunami', 'properties.sig']].fillna(0)
+        df[['properties.felt', 'properties.cdi', 'properties.tz', 'properties.tsunami', 'properties.sig']] = df[['properties.felt', 'properties.cdi', 'properties.tz', 'properties.tsunami', 'properties.sig']].astype(int)
         df['properties.time.datetime'] = pd.to_datetime(df['properties.time'], unit='ms')
         df['properties.updated.datetime'] = pd.to_datetime(df['properties.updated'], unit='ms')
         df['metadata.generated.datetime'] = pd.to_datetime(df['generated'], unit='ms')
+        df['dataframe_timestamp_now'] = pd.Timestamp.now()
         df.columns = df.columns.str.replace(".","_", regex=False)
         df.to_parquet(f'{LOCAL_PARQUET}', use_deprecated_int96_timestamps=True)
         return LOCAL_PARQUET
@@ -116,13 +106,18 @@ with DAG(
             print("Error: %s file not found" % my_json)
     
     bq_load_data = BigQueryInsertJobOperator(
-    task_id="bigquery_load_data_task",
+    task_id="bigquery_load_data",
     configuration={
         "query": {
             "query": BQ_LOAD_DATA_QUERY,
             "useLegacySql": False,
             }
         }
+    )
+
+    dbt_run = BashOperator(
+        task_id="dbt_run",
+        bash_command= "cd /dbt && dbt run",
     )
 
     api_data = python_requests_api(API_URL)
@@ -132,8 +127,5 @@ with DAG(
     uploaded_parquet = upload_parquet_to_gcs(BUCKET, create_df, DESTINATION_BLOB_PARQUET)
     local_json_deleted = delete_local_json(uploaded_json)
     local_parquet_deleted = delete_local_parquet(uploaded_parquet)
-    local_parquet_deleted >> bq_load_data
+    local_parquet_deleted >> bq_load_data >> dbt_run
   
-
-
-    
