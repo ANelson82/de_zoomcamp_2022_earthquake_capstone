@@ -71,8 +71,6 @@ with DAG(
         df_meta = pd.json_normalize(df['metadata'])
         df = pd.concat([df, df_meta], axis=1, join="inner")
         df[['geometry.coordinates.longitude', 'geometry.coordinates.latitude', 'geometry.coordinates.depth']] = df['geometry.coordinates'].tolist()
-        # df[['geometry.coordinates.latitude', 'geometry.coordinates.longitude']] = df[['geometry.coordinates.latitude', 'geometry.coordinates.longitude']].astype(str)
-        # df['geometry.coordinates.lat_long'] = "(" + df['geometry.coordinates.latitude'] + ", " + df['geometry.coordinates.longitude'] + ")"
         df.drop(['metadata'], axis=1, inplace=True)
         df['properties.alert'] = df['properties.alert'].astype(str)
         df[['properties.mmi', 'properties.felt', 'properties.cdi', 'properties.tz', 'properties.tsunami', 'properties.sig']] = df[['properties.mmi', 'properties.felt', 'properties.cdi', 'properties.tz', 'properties.tsunami', 'properties.sig']].fillna(0)
