@@ -69,14 +69,16 @@ The DAG does the following on a '@daily' schedule:
 - Uses Python to parse the nested JSON into list of dictionaries that gets transformed into a [Pandas dataframe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html).
 - Converts the DataFrame into a [parquet file](https://parquet.apache.org/docs/) that gets saved locally.
 - Uploads the parquet into my [Google Cloud Storage](https://cloud.google.com/storage) datalake with the parameterized date as filename.
-- 
+- Deletes the locally stored parquet file.
+- Pushes the datalake parquet into a BigQuery Native table using the 'LOAD DATA INTO...' command.
+- runs my dbt models using 'dbt_run' command with the BashOperator
 
 ![Airflow DAG](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/dag_graph.png)
 
 # dbt Transformation
 - dbt was used to take the `raw_earthquakes` data from BigQuery native table and deduplicate the data using a SQL window function.  
 - The goal is to have only one record of seismic event using the seismic 'id' column.
-- Requirements dictate that only the latest version of the event based on it's 'properties_updated_datetime' timestamp are needed. 
+- Requirements indicate that only the latest version of the event based on it's 'properties_updated_datetime' timestamp are needed. 
 
 ```
 select 
@@ -99,8 +101,10 @@ where id is not null
     }
 )}}
 ```
+![Airflow DAG](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/dbt_lineage_graph.png)
 
-
+# Visualization
+- With the fact_table materialized in a partitioned BigQuery native table, we can now ingest the data into 
 
 # Future Work That Could Be Done
 1. More experimentation with the Airflow configuration and VM instance. I would like to attempt a lightweight version using the [sequential executor](https://airflow.apache.org/docs/apache-airflow/stable/executor/sequential.html) instead of the [celery executor](https://airflow.apache.org/docs/apache-airflow/stable/executor/celery.html) and [SQLite over Postgres backend](https://airflow.apache.org/docs/apache-airflow/stable/howto/set-up-database.html#choosing-database-backend).
@@ -119,10 +123,10 @@ Thanks to the instructors.
 And my employer and teammates.
 - [evolv Consulting](https://evolv.consulting/)
 
-# LinkedIn
+### LinkedIn
 - [My Linkedin](https://www.linkedin.com/in/andynelson1982/)
 
-# Helpful Resources
+<!-- # Helpful Resources
 1. Data Engineering Resource Gathering
     [Joseph Machado - How to gather requirements for your data project](https://www.startdataengineering.com/post/n-questions-data-pipeline-req/)
 1. [Fivetran Star Schema vs OBT](https://www.fivetran.com/blog/star-schema-vs-obt)
@@ -141,4 +145,4 @@ And my employer and teammates.
 	1. Data Pipelines with Apache Airflow - Bas Harenslak / Julian de Ruiter
 		1. https://github.com/BasPH/data-pipelines-with-apache-airflow
 1. Practicing with REST API
-	1. https://gorest.co.in/
+	1. https://gorest.co.in/ -->

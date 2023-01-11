@@ -35,14 +35,14 @@ BQ_LOAD_DATA_QUERY = (
             )
 
 with DAG(
-    dag_id='usgs_earthquakes_pipeline_v32',
+    dag_id='usgs_earthquakes_pipeline_v33',
     schedule="@daily",
     default_args={
         "depends_on_past": False,
         "retries": 1,
         "retry_delay": datetime.timedelta(minutes=1),
     },
-    start_date=pendulum.datetime(2023, 1, 4, tz="UTC"),
+    start_date=pendulum.datetime(2022, 10, 1, tz="UTC"),
     description="DE_Zoomcamp Capstone Project Pipeline by Andy Nelson",
     catchup=True,
     max_active_runs=1,
