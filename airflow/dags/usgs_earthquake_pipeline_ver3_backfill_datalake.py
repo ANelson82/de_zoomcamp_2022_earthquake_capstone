@@ -6,8 +6,6 @@ import pandas as pd
 import datetime
 from airflow import DAG
 from airflow.decorators import task
-from airflow.operators.bash_operator import BashOperator
-# from airflow_dbt.operators.dbt_operator import DbtRunOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from google.cloud import storage
 from google.oauth2 import service_account
@@ -37,7 +35,7 @@ BQ_LOAD_DATA_QUERY = (
             )
 
 with DAG(
-    dag_id='usgs_earthquakes_pipeline_dbt_v01',
+    dag_id='usgs_earthquakes_pipeline_v32',
     schedule="@daily",
     default_args={
         "depends_on_past": False,
@@ -46,7 +44,7 @@ with DAG(
     },
     start_date=pendulum.datetime(2023, 1, 4, tz="UTC"),
     description="DE_Zoomcamp Capstone Project Pipeline by Andy Nelson",
-    catchup=False,
+    catchup=True,
     max_active_runs=1,
     tags=["USGS_FDSN_EARTHQUAKES"],
 ) as dag:
@@ -116,18 +114,6 @@ with DAG(
         }
     )
 
-    dbt_run = BashOperator(
-        task_id="dbt_run",
-        # bash_command= "cd /opt/airflow/dbt && dbt run --profiles-dir /opt/airflow/dbt",
-        bash_command= "cd /opt/airflow/dbt && dbt run",
-    )
-
-    # dbt_run = DbtRunOperator(
-    #     task_id="dbt_run",
-    #     dir="/opt/airflow/operators/dbt/",
-    #     profiles_dir="/opt/airflow/operators/dbt/"
-    # )
-
     api_data = python_requests_api(API_URL)
     saved_json_local = save_json_data_to_local(api_data, LOCAL_JSON)
     uploaded_json =  upload_json_data_to_gcs(BUCKET, saved_json_local, DESTINATION_BLOB_JSON)
@@ -135,5 +121,8 @@ with DAG(
     uploaded_parquet = upload_parquet_to_gcs(BUCKET, create_df, DESTINATION_BLOB_PARQUET)
     local_json_deleted = delete_local_json(uploaded_json)
     local_parquet_deleted = delete_local_parquet(uploaded_parquet)
-    local_parquet_deleted >> bq_load_data >> dbt_run
+    local_parquet_deleted >> bq_load_data
   
+
+
+    

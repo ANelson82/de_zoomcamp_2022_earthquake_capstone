@@ -62,7 +62,7 @@ x-airflow-common:
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
-    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:- dbt-bigquery}
     GOOGLE_APPLICATION_CREDENTIALS: /.google/credentials/google_credentials.json
     AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT: 'google-cloud-platform://?extra__google_cloud_platform__key_path=/.google/credentials/google_credentials.json'
 
@@ -75,8 +75,8 @@ x-airflow-common:
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
     - /home/andy/.google/credentials:/.google/credentials
-    - /home/andy/de_zoomcamp_2022_earthquake_capstone/dbt:/dbt
-    - /home/andy/.dbt:/.dbt
+    - /home/andy/de_zoomcamp_2022_earthquake_capstone/dbt:/opt/airflow/dbt
+    - /home/andy/de_zoomcamp_2022_earthquake_capstone/dbt/.dbt:/opt/airflow/.dbt
 
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:

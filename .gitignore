@@ -2,3 +2,4 @@ airflow/.env
 airflow/dags/__pycache__/*
 airflow/logs/
 logs/
+dbt/.dbt

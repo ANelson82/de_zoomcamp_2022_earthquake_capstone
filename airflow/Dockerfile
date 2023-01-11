@@ -25,6 +25,9 @@ RUN DOWNLOAD_URL="https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/goo
 
 ENV AIRFLOW_HOME=/opt/airflow
 
+#new
+ENV DBT_PROFILES_DIR=/opt/airflow/.dbt
+
 RUN apt-get update -qq && apt-get install vim -qqq
 
 COPY requirements.txt .
