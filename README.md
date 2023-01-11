@@ -44,10 +44,10 @@ The [geojson](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) dat
 ![USGS API json Example](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/usgs_api_json.jpg)
 
 # Data Transformation
-- The [REST API json response](de_zoomcamp_2022_earthquake_capstone/sample_data/sample_earthquake_response.json) comes a nested json structure. 
+- The [REST API json response](de_zoomcamp_2022_earthquake_capstone/sample_data/sample_earthquake_response.json) comes as a nested json structure. 
 - The seismic events that are of the most interest are in the "features" array of objects that needs to be iterated over and extracted into a Python array.
 - This array was turned into a [Pandas dataframe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html).
-- Additional columns were created that converted the UNIX or POSIX time (ms) into datetime object.
+- Additional columns were created that converted the UNIX or POSIX time (ms) into datetime objects.
 
 - Example of Flattened data ![USGS API json Example](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/flattened_data.png)
 
@@ -57,30 +57,30 @@ The [geojson](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) dat
 - Additional storage costs are typically a non-issue.
 
 # Data Storage
-- The both the raw json's and flattened parquet files are stored in a datalake in Google Cloud Storage bucket(GCS) 
+- Both the raw json's and flattened parquet files are stored in a [datalake](https://en.wikipedia.org/wiki/Data_lake) in Google Cloud Storage bucket(GCS) 
 
 ![Data Lake](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/datalake.png)
 
 # Airflow Orchestration 
 The DAG does the following on a '@daily' schedule:
 - Parameterizes the API endpoint to use the dates passed in by using the [Airflow provided template variables](https://airflow.apache.org/docs/apache-airflow/stable/templates-ref.html)
-- Uses the [Python requests library](https://requests.readthedocs.io/en/latest/) GET request and returns a API response to be stored in local memory with a variable.
-- Saves the raw json file to local storage, uploads the blob into the datalake, then deletes the local json file.
+- Uses the [Python requests library](https://requests.readthedocs.io/en/latest/) GET request and returns an API response to be stored in local memory with a variable.
+- Saves the raw json file to local storage, uploads the blob into the data lake, then deletes the local json file.
 - Uses Python to parse the nested JSON into list of dictionaries that gets transformed into a [Pandas dataframe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html).
 - Converts the DataFrame into a [parquet file](https://parquet.apache.org/docs/) that gets saved locally.
-- Uploads the parquet into my [Google Cloud Storage](https://cloud.google.com/storage) datalake with the parameterized date as filename.
+- Uploads the parquet into my [Google Cloud Storage](https://cloud.google.com/storage) data lake with the parameterized date as filename.
 - Deletes the locally stored parquet file.
-- Pushes the datalake parquet into a BigQuery Native table using the ['LOAD DATA INTO...'](https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-parquet#appending_to_or_overwriting_a_table_with_parquet_data) command.
+- Pushes the data lake parquet into a BigQuery Native table using the ['LOAD DATA INTO...'](https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-parquet#appending_to_or_overwriting_a_table_with_parquet_data) command.
 - Runs the dbt models using ['dbt_run'](https://docs.getdbt.com/reference/commands/run) command with the [BashOperator](https://airflow.apache.org/docs/apache-airflow/stable/howto/operator/bash.html).
 
 ### Airflow DAG
 ![Airflow DAG](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/dag_graph.png)
 
 # dbt Transformation
-- dbt was used to take the `raw_earthquakes` data from BigQuery native table and deduplicate the data using a SQL window function.  
+- dbt was used to take the `raw_earthquakes` data from BigQuery native table and deduplicate the data using a [SQL window function](https://en.wikipedia.org/wiki/Window_function_(SQL)).  
 - The goal is to have only one record of seismic event using the seismic 'id' column.
-- Requirements indicate that only the latest version of the event based on it's 'properties_updated_datetime' timestamp are needed.
-- It is assumed as the seismic data is reprocessed, this archetecture design will allow analyst to examine the historical changes of a particular seismic event, yet still show the latest version of each event.
+- Requirements indicate that only the latest version of the event based on its 'properties_updated_datetime' timestamp are needed.
+- It is assumed as the seismic data is reprocessed, this architecture design will allow analysts to examine the historical changes of a particular seismic event, yet still show the latest version of each event.
 
 ```
 select 
@@ -123,7 +123,7 @@ where id is not null
 1. I would like to try more automation around the devops implimentation of the entire pipeline.  I would like to see if I could automate more of the dockerfile to execute more steps of the initialization.
 1. Explore making the airflow instance less brittle. Not using any local compute, but rather push more compute to external [cloud functions](https://cloud.google.com/functions).
 1. Build out more reports, more testing, explore different methods surrounding dbt.
-1. Integrate Population Data
+1. Integrate Population Data to show earthquakes potential impact to human inhabitants.
 1. Data Science, specifically time series analysis
 
 # Acknowledgements
