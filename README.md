@@ -70,15 +70,17 @@ The DAG does the following on a '@daily' schedule:
 - Converts the DataFrame into a [parquet file](https://parquet.apache.org/docs/) that gets saved locally.
 - Uploads the parquet into my [Google Cloud Storage](https://cloud.google.com/storage) datalake with the parameterized date as filename.
 - Deletes the locally stored parquet file.
-- Pushes the datalake parquet into a BigQuery Native table using the 'LOAD DATA INTO...' command.
-- runs my dbt models using 'dbt_run' command with the BashOperator
+- Pushes the datalake parquet into a BigQuery Native table using the ['LOAD DATA INTO...'](https://cloud.google.com/bigquery/docs/loading-data-cloud-storage-parquet#appending_to_or_overwriting_a_table_with_parquet_data) command.
+- Runs the dbt models using ['dbt_run'](https://docs.getdbt.com/reference/commands/run) command with the [BashOperator](https://airflow.apache.org/docs/apache-airflow/stable/howto/operator/bash.html).
 
+### Airflow DAG
 ![Airflow DAG](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/dag_graph.png)
 
 # dbt Transformation
 - dbt was used to take the `raw_earthquakes` data from BigQuery native table and deduplicate the data using a SQL window function.  
 - The goal is to have only one record of seismic event using the seismic 'id' column.
-- Requirements indicate that only the latest version of the event based on it's 'properties_updated_datetime' timestamp are needed. 
+- Requirements indicate that only the latest version of the event based on it's 'properties_updated_datetime' timestamp are needed.
+- It is assumed as the seismic data is reprocessed, this archetecture design will allow analyst to examine the historical changes of a particular seismic event, yet still show the latest version of each event.
 
 ```
 select 
@@ -87,9 +89,9 @@ select
 from {{ source('raw','raw_earthquake') }}
 where id is not null
 ```
-- The `stg_earthquakes` was materialized as view.
-- The cast function was used to rename columns and change data types.
-- This view is the source reference for the `fact_earthquakes` table that is partitioned by "properties_time_datetime" timestamp and materialized as an incremental table.
+- The `stg_earthquakes` was [materialized](https://docs.getdbt.com/docs/build/materializations) as [view](https://docs.getdbt.com/terms/view).
+- The [cast function](https://docs.getdbt.com/sql-reference/cast) was used to rename columns and change data types.
+- This view is the [source reference](https://docs.getdbt.com/reference/dbt-jinja-functions/source) for the `fact_earthquakes` table that is [partitioned](https://docs.getdbt.com/reference/resource-configs/bigquery-configs#partition-clause) by "properties_time_datetime" timestamp and materialized as an [incremental table](https://docs.getdbt.com/docs/build/incremental-models).
 
 ```
 {{ config(
@@ -101,10 +103,20 @@ where id is not null
     }
 )}}
 ```
-![Airflow DAG](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/dbt_lineage_graph.png)
+### dbt Lineage Graph
+![dbt Lineage Graph](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/dbt_lineage_graph.png)
 
 # Visualization
-- With the fact_table materialized in a partitioned BigQuery native table, we can now ingest the data into 
+- With the fact_table materialized in a partitioned BigQuery native table, the data can now be viewed in [Google Looker Studio (formerly Data Studio)](https://lookerstudio.google.com/)
+- Looker Studio has 3 steps:
+1. Pick a data source, including 100+ data connectors including BigQuery. 
+2. Pick the columns needed, or create your own using logical functions.
+3. Create the dashboard
+
+
+![Step1](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/looker_step1.png)
+![Step2](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/looker_step2.png)
+![Step3](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/looker_step3.png)
 
 # Future Work That Could Be Done
 1. More experimentation with the Airflow configuration and VM instance. I would like to attempt a lightweight version using the [sequential executor](https://airflow.apache.org/docs/apache-airflow/stable/executor/sequential.html) instead of the [celery executor](https://airflow.apache.org/docs/apache-airflow/stable/executor/celery.html) and [SQLite over Postgres backend](https://airflow.apache.org/docs/apache-airflow/stable/howto/set-up-database.html#choosing-database-backend).
@@ -122,6 +134,7 @@ Thanks to the instructors.
 
 And my employer and teammates.
 - [evolv Consulting](https://evolv.consulting/)
+![evolv](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/evolv.jfif)
 
 ### LinkedIn
 - [My Linkedin](https://www.linkedin.com/in/andynelson1982/)

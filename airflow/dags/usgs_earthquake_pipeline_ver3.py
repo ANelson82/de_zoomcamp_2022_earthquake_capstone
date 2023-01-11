@@ -75,6 +75,7 @@ with DAG(
         df['properties.alert'] = df['properties.alert'].astype(str)
         df[['properties.mmi', 'properties.felt', 'properties.cdi', 'properties.tz', 'properties.tsunami', 'properties.sig']] = df[['properties.mmi', 'properties.felt', 'properties.cdi', 'properties.tz', 'properties.tsunami', 'properties.sig']].fillna(0)
         df[['properties.felt', 'properties.cdi', 'properties.tz', 'properties.tsunami', 'properties.sig']] = df[['properties.felt', 'properties.cdi', 'properties.tz', 'properties.tsunami', 'properties.sig']].astype(int)
+        df['properties.mmi'] = df['properties.mmi'].astype(float)
         df['properties.time.datetime'] = pd.to_datetime(df['properties.time'], unit='ms')
         df['properties.updated.datetime'] = pd.to_datetime(df['properties.updated'], unit='ms')
         df['metadata.generated.datetime'] = pd.to_datetime(df['generated'], unit='ms')
