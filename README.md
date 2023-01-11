@@ -6,6 +6,9 @@ This GitHub repository fulfills the final capstone project for the [Data Enginee
 
 ![Data Pipeline Architecture](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/architecture_earthquake.excalidraw.png)
 
+# Dashboard
+[Looker Studio](https://datastudio.google.com/reporting/732a266e-7aa2-41e6-8454-a8d77407d5d4/page/5tECD)
+
 # Presentation
 #todo
 [Youtube Presentation](http://youtube.com)
@@ -54,18 +57,21 @@ The [geojson](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) dat
 - Additional storage costs are typically a non-issue.
 
 # Data Storage
-- The raw parquet files that arrive daily are stored in GCS
-- The data is stored initially in a raw stage as a native BigQuery table.
-- The data is transformed by dbt and materialized as a native BigQuery table that is 
+- The both the raw json's and flattened parquet files are stored in a datalake in Google Cloud Storage bucket(GCS) 
+
+![Data Lake](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/datalake.png)
+
 # Airflow Orchestration 
 The DAG does the following on a '@daily' schedule:
 - Parameterizes the API endpoint to use the dates passed in by using the [Airflow provided template variables](https://airflow.apache.org/docs/apache-airflow/stable/templates-ref.html)
-- uses the [Python requests library](https://requests.readthedocs.io/en/latest/) store the API data in local memory into a variable
-- uses Python to parse the nested JSON into list of dictionaries that gets transformed into a DataFrame
-- converts the DataFrame into a [parquet file](https://parquet.apache.org/docs/) that gets saved locally
-- uploads the parquet into my [Google Cloud Storage](https://cloud.google.com/storage) datalake with the parameterized date as filename
-- #todo finish dag steps
-- #todo add dag screenshot
+- Uses the [Python requests library](https://requests.readthedocs.io/en/latest/) GET request and returns a API response to be stored in local memory with a variable.
+- Saves the raw json file to local storage, uploads the blob into the datalake, then deletes the local json file.
+- Uses Python to parse the nested JSON into list of dictionaries that gets transformed into a [Pandas dataframe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html).
+- Converts the DataFrame into a [parquet file](https://parquet.apache.org/docs/) that gets saved locally.
+- Uploads the parquet into my [Google Cloud Storage](https://cloud.google.com/storage) datalake with the parameterized date as filename.
+- 
+
+![Airflow DAG](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/dag_graph.png)
 
 # dbt Transformation
 - dbt was used to take the `raw_earthquakes` data from BigQuery native table and deduplicate the data using a SQL window function.  
@@ -95,8 +101,6 @@ where id is not null
 ```
 
 
-# Dashboard
-#todo Dashboard link and photo
 
 # Future Work That Could Be Done
 1. More experimentation with the Airflow configuration and VM instance. I would like to attempt a lightweight version using the [sequential executor](https://airflow.apache.org/docs/apache-airflow/stable/executor/sequential.html) instead of the [celery executor](https://airflow.apache.org/docs/apache-airflow/stable/executor/celery.html) and [SQLite over Postgres backend](https://airflow.apache.org/docs/apache-airflow/stable/howto/set-up-database.html#choosing-database-backend).
