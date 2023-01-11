@@ -7,8 +7,8 @@ This GitHub repository fulfills the final capstone project for the [Data Enginee
 ![Data Pipeline Architecture](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/architecture_earthquake.excalidraw.png)
 
 # Dashboard
-[Looker Studio](https://datastudio.google.com/reporting/ded3baf5-c5ce-455c-b5ad-e1d6be4c5cdd)
-
+[Earthquake Capstone Project Google Looker Studio](https://datastudio.google.com/reporting/ded3baf5-c5ce-455c-b5ad-e1d6be4c5cdd)
+![Data Pipeline Architecture](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/dashboard.png)
 # Presentation
 #todo
 [Youtube Presentation](http://youtube.com)
@@ -123,7 +123,8 @@ where id is not null
 1. I would like to try more automation around the devops implimentation of the entire pipeline.  I would like to see if I could automate more of the dockerfile to execute more steps of the initialization.
 1. Explore making the airflow instance less brittle. Not using any local compute, but rather push more compute to external [cloud functions](https://cloud.google.com/functions).
 1. Build out more reports, more testing, explore different methods surrounding dbt.
-1. Data Science, Time Series Analysis
+1. Integrate Population Data
+1. Data Science, specifically time series analysis
 
 # Acknowledgements
 Thanks to the instructors.
@@ -134,7 +135,8 @@ Thanks to the instructors.
 
 And my employer and teammates.
 - [evolv Consulting](https://evolv.consulting/)
-![evolv](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/evolv.jfif)
+<!-- ![evolv](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/evolv.jfif) -->
+<img src="https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/evolv.jfif" alt="evolv" width="200"/>
 
 ### LinkedIn
 - [My Linkedin](https://www.linkedin.com/in/andynelson1982/)
