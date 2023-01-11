@@ -7,7 +7,7 @@ This GitHub repository fulfills the final capstone project for the [Data Enginee
 ![Data Pipeline Architecture](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/architecture_earthquake.excalidraw.png)
 
 # Dashboard
-[Looker Studio](https://datastudio.google.com/reporting/732a266e-7aa2-41e6-8454-a8d77407d5d4/page/5tECD)
+[Looker Studio](https://datastudio.google.com/reporting/ded3baf5-c5ce-455c-b5ad-e1d6be4c5cdd)
 
 # Presentation
 #todo
