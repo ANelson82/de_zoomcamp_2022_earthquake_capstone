@@ -8,7 +8,7 @@ This GitHub repository fulfills the final capstone project for the [Data Enginee
 
 # Dashboard
 [Earthquake Capstone Project Google Looker Studio](https://datastudio.google.com/reporting/ded3baf5-c5ce-455c-b5ad-e1d6be4c5cdd)
-![Data Pipeline Architecture](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/dashboard.png)(https://datastudio.google.com/reporting/ded3baf5-c5ce-455c-b5ad-e1d6be4c5cdd)
+[![Data Pipeline Architecture](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/dashboard.png)(https://datastudio.google.com/reporting/ded3baf5-c5ce-455c-b5ad-e1d6be4c5cdd)]
 
 # Presentation
 #todo
