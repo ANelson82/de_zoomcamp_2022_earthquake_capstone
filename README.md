@@ -8,7 +8,8 @@ This GitHub repository fulfills the final capstone project for the [Data Enginee
 
 # Dashboard
 [Earthquake Capstone Project Google Looker Studio](https://datastudio.google.com/reporting/ded3baf5-c5ce-455c-b5ad-e1d6be4c5cdd)
-![Data Pipeline Architecture](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/dashboard.png)
+![Data Pipeline Architecture](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/dashboard.png)(https://datastudio.google.com/reporting/ded3baf5-c5ce-455c-b5ad-e1d6be4c5cdd)
+
 # Presentation
 #todo
 [Youtube Presentation](http://youtube.com)
@@ -119,6 +120,7 @@ where id is not null
 ![Step3](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/looker_step3.png)
 
 # Future Work That Could Be Done
+1. Including dbt Testing, airflow testing, fu
 1. More experimentation with the Airflow configuration and VM instance. I would like to attempt a lightweight version using the [sequential executor](https://airflow.apache.org/docs/apache-airflow/stable/executor/sequential.html) instead of the [celery executor](https://airflow.apache.org/docs/apache-airflow/stable/executor/celery.html) and [SQLite over Postgres backend](https://airflow.apache.org/docs/apache-airflow/stable/howto/set-up-database.html#choosing-database-backend).
 1. I would like to try more automation around the devops implimentation of the entire pipeline.  I would like to see if I could automate more of the dockerfile to execute more steps of the initialization.
 1. Explore making the airflow instance less brittle. Not using any local compute, but rather push more compute to external [cloud functions](https://cloud.google.com/functions).
