@@ -7,8 +7,8 @@ This GitHub repository fulfills the final capstone project for the [Data Enginee
 ![Data Pipeline Architecture](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/architecture_earthquake.excalidraw.png)
 
 # Dashboard
-[Earthquake Capstone Project Google Looker Studio](https://datastudio.google.com/reporting/ded3baf5-c5ce-455c-b5ad-e1d6be4c5cdd)
-[![Data Pipeline Architecture](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/dashboard.png)](https://datastudio.google.com/reporting/ded3baf5-c5ce-455c-b5ad-e1d6be4c5cdd)
+[Earthquake Capstone Project Google Looker Studio](https://datastudio.google.com/reporting/d545276d-bc78-4f66-806a-7218411a4ea9)
+[![Data Pipeline Architecture](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/dashboard.png)](https://datastudio.google.com/reporting/d545276d-bc78-4f66-806a-7218411a4ea9)
 
 
 # Presentation
@@ -121,13 +121,25 @@ where id is not null
 ![Step3](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/looker_step3.png)
 
 # Future Work That Could Be Done
-1. Including dbt Testing, airflow testing, fu
+1. Testing: [dbt testing](https://docs.getdbt.com/docs/build/tests), [airflow testing](https://docs.astronomer.io/learn/testing-airflow)
 1. More experimentation with the Airflow configuration and VM instance. I would like to attempt a lightweight version using the [sequential executor](https://airflow.apache.org/docs/apache-airflow/stable/executor/sequential.html) instead of the [celery executor](https://airflow.apache.org/docs/apache-airflow/stable/executor/celery.html) and [SQLite over Postgres backend](https://airflow.apache.org/docs/apache-airflow/stable/howto/set-up-database.html#choosing-database-backend).
 1. I would like to try more automation around the devops implimentation of the entire pipeline.  I would like to see if I could automate more of the dockerfile to execute more steps of the initialization.
 1. Explore making the airflow instance less brittle. Not using any local compute, but rather push more compute to external [cloud functions](https://cloud.google.com/functions).
-1. Build out more reports, more testing, explore different methods surrounding dbt.
+1. Build out more reports, push out weekly updates via slack webhook or email
 1. Integrate Population Data to show earthquakes potential impact to human inhabitants.
 1. Data Science, specifically time series analysis
+
+# Clean Up
+A [GCP trial account](https://cloud.google.com/free/docs/free-cloud-features#free-trial) was used to work on this project with 90 access. The final step was to transfer the final `fact_earthquake` BiqQuery table to my personal account.
+The [BigQuery Copy Command](https://cloud.google.com/bigquery/docs/managing-tables#copying_a_single_source_table) was utilized.
+
+```
+bq cp -f \
+old_dataset.fact_earthquakes \
+main_projectid:new_dataset.fact_earthquakes
+```
+
+The final dashboard was conected to this BigQuery Table.
 
 # Acknowledgements
 Thanks to the instructors.
