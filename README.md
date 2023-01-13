@@ -130,7 +130,7 @@ where id is not null
 1. Data Science, specifically time series analysis
 
 # Clean Up
-A [GCP trial account](https://cloud.google.com/free/docs/free-cloud-features#free-trial) was used to work on this project with 90 access. The final step was to transfer the final `fact_earthquake` BiqQuery table to my personal account.
+A [GCP trial account](https://cloud.google.com/free/docs/free-cloud-features#free-trial) was used to work on this project with 90 day access. The final step was to transfer the final `fact_earthquake` BiqQuery table to my personal account for safe keeping.
 The [BigQuery Copy Command](https://cloud.google.com/bigquery/docs/managing-tables#copying_a_single_source_table) was utilized.
 
 ```
