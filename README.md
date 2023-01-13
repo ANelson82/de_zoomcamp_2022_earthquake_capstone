@@ -106,6 +106,7 @@ where id is not null
 )}}
 ```
 ### dbt Lineage Graph
+- dbt has a built in tool used to visually show data lineage as it travels across the data layers: raw -> stage -> final
 ![dbt Lineage Graph](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/dbt_lineage_graph.png)
 
 # Visualization
@@ -113,7 +114,7 @@ where id is not null
 - Looker Studio has 3 steps:
 1. Pick a data source, including 100+ data connectors including BigQuery. 
 2. Pick the columns needed, or create your own using logical functions.
-3. Create the dashboard
+3. Create the dashboard.
 
 
 ![Step1](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/looker_step1.png)
@@ -130,7 +131,7 @@ where id is not null
 1. Data Science, specifically time series analysis
 
 # Clean Up
-A [GCP trial account](https://cloud.google.com/free/docs/free-cloud-features#free-trial) was used to work on this project with 90 day access. The final step was to transfer the final `fact_earthquake` BiqQuery table to my personal account for safe keeping.
+A [GCP trial account](https://cloud.google.com/free/docs/free-cloud-features#free-trial) was used to work on this project with 90 day access. The final step was to transfer the final `fact_earthquakes` BiqQuery table to my personal account for safe keeping.
 The [BigQuery Copy Command](https://cloud.google.com/bigquery/docs/managing-tables#copying_a_single_source_table) was utilized.
 
 ```
