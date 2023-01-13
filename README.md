@@ -11,9 +11,9 @@ This GitHub repository fulfills the final capstone project for the [Data Enginee
 [![Data Pipeline Architecture](https://github.com/ANelson82/de_zoomcamp_2022_earthquake_capstone/blob/main/images/dashboard.png)](https://datastudio.google.com/reporting/d545276d-bc78-4f66-806a-7218411a4ea9)
 
 
-# Presentation
+<!-- # Presentation
 #todo
-[Youtube Presentation](http://youtube.com)
+[Youtube Presentation](http://youtube.com) -->
 
 # Technical Challenge
 Analysts are studying the frequency, intensity, and spatial occurrence of seismic activity.  This data needs to be automatically stored and processed in a way that analysts can quickly analyze and build out reports and dashboards.  The technical implementation needs to be:
