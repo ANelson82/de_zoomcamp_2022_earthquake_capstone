@@ -85,12 +85,18 @@ The DAG does the following on a '@daily' schedule:
 - It is assumed as the seismic data is reprocessed, this architecture design will allow analysts to examine the historical changes of a particular seismic event, yet still show the latest version of each event.
 
 ```
-select 
-	*,
-	row_number() over(partition by id, properties_updated_datetime) as rn
-from {{ source('raw','raw_earthquake') }}
-where id is not null
+with earthquakes as 
+(
+    select *,
+        row_number() over(partition by id, properties_updated_datetime) as rn
+    from {{ source('raw','raw_earthquakes') }}
+    where id is not null 
+)
+select ...
+from earthquakes 
+where rn = 1
 ```
+
 - The `stg_earthquakes` was [materialized](https://docs.getdbt.com/docs/build/materializations) as [view](https://docs.getdbt.com/terms/view).
 - The [cast function](https://docs.getdbt.com/sql-reference/cast) was used to rename columns and change data types.
 - This view is the [source reference](https://docs.getdbt.com/reference/dbt-jinja-functions/source) for the `fact_earthquakes` table that is [partitioned](https://docs.getdbt.com/reference/resource-configs/bigquery-configs#partition-clause) by "properties_time_datetime" timestamp and materialized as an [incremental table](https://docs.getdbt.com/docs/build/incremental-models).
