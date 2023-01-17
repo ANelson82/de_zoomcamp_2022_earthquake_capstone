@@ -149,7 +149,7 @@ main_projectid:new_dataset.fact_earthquakes
 The final dashboard was conected to this BigQuery Table.
 
 # Terraform
-Lastly, the cloud resources were archived and exported using [GCP Terrform Bulk Exporter CLI tool](https://cloud.google.com/docs/terraform/resource-management/export#export_the_entire_project_configuration_to_terraform_hcl_code).
+Lastly, the cloud resources were archived and exported to Terraform HCL code using [GCP gcloud beta resource-config bulk-export](https://cloud.google.com/docs/terraform/resource-management/export#export_the_entire_project_configuration_to_terraform_hcl_code).
 
 
 # Acknowledgements
